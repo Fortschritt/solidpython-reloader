@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     scripts=['bin/sp-reloader',],
@@ -9,4 +9,6 @@ setup(
    'Django>=2.2,<2.3',
    'solidpython'
     ],
+    include_package_data=True,
+    packages=find_packages(include=['spreloader',]),
 )

@@ -1,4 +1,4 @@
 import spreloader
 
 def main():
-    print spreloader.main()
+    spreloader.main()
