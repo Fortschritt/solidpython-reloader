@@ -7,7 +7,7 @@ import traceback
 from django.dispatch import Signal
 from django.utils.autoreload import StatReloader, autoreload_started, file_changed
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(message)s')
 logger = logging.getLogger('spreloader')
 
 
@@ -91,7 +91,12 @@ class SPReloader(StatReloader):
         results = file_changed.send(sender=self, file_path=path)
         logger.debug('%s notified as changed. Signal results: %s.', path, results)
         if not any(res[1] for res in results):
-            logger.info('%s changed, reloading.', path)
+            # less verbose path output if we stay in the current directory
+            if os.path.dirname(path) == os.getcwd():
+                path_msg = os.path.basename(path)
+            else:
+                path_msg = path
+            logger.info('%s changed, reloading.', path_msg)
         # prevent syntax errors from breaking the reload loop
         try:
             self.reload_signal.send(sender=self)
@@ -127,12 +132,12 @@ def main():
     try:
         command = sys.argv[1]
     except IndexError:
-        print("No command provided, e.g. %s startproject project_name" % script_name)
+        logger.info("No command provided, e.g. %s startproject project_name" % script_name)
         sys.exit(1)
     try:
         project_name = sys.argv[2]
     except IndexError:
-        print("No project name provided, e.g. %s startproject project_name" % script_name)
+        logger.info("No project name provided, e.g. %s startproject project_name" % script_name)
         sys.exit(1)
     startproject(project_name)
 
